@@ -2,8 +2,8 @@ require 'securerandom'
 
 module Mandela
   class Connection
-    # has-many :subscriptions
-    # has-many :channels via subscriptions
+
+    LOG = -> (action, id, *args) { Mandela::Utils.log(:Connection, action, *[id, args]) }
 
     attr_reader :id, :subscriptions
 
@@ -26,7 +26,8 @@ module Mandela
 
       channel_label, channel_id = extract_channel_info(payload)
       
-      puts "[Connection:#{id}:handle_pubsub_message]: #{channel_label}-#{channel_id}"
+      # puts "[Connection:#{id}:handle_pubsub_message]: #{channel_label}-#{channel_id}"
+      LOG[:handle_pubsub_message, id, channel_label, channel_id]
 
       return if channel_id.nil?
       return if channel_label.nil?
@@ -71,11 +72,9 @@ module Mandela
         byebug
       end
 
-      # puts "-> websocket.send: start: #{Time.now}"
-      puts "[Connection:#{@id}:ws_send]: #{data}"
+      LOG[:ws_send, @id, Time.now.to_s, data]
 
       @ws.send(data)
-      # puts "-> websocket.send: done: #{Time.now}"
     end
 
     def cookies

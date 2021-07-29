@@ -2,6 +2,8 @@ module Mandela
   module Ws
     class HandleMsg
 
+      LOG = -> (entity, *args) { Mandela::Utils.log(:HandleMsg, nil, entity, *args) }
+
       def self.call(*args)
         new.call(*args)
       end
@@ -20,16 +22,14 @@ module Mandela
         # channel
         #   .execute(:on_message, { msg: msg, connection: connection })
 
-        if msg == "ping"
-          mconn.ws_send("pong")
-          return
-        end
-
         channel = Mandela::Channel.find_on_connection(msg, connection)
+        LOG[:channel, channel.inspect]
         
         return unless channel
 
         subs = connection.subscriptions_to(channel)
+        LOG[:subs, subs.map(&:inspect)]
+
         subs.each do |sub|
           channel.execute(:on_message, msg: msg, sub: sub)
         end

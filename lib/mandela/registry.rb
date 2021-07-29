@@ -1,5 +1,5 @@
 module Mandela
-  class Registry # Rename to ChannelRegistry
+  class Registry # Rename to ProcessGlobal
     REGISTERED_CHANNELS = {}
     REGISTERED_CONNECTIONS = {}
 

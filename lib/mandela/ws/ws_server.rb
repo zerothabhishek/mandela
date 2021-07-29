@@ -28,10 +28,7 @@ module Mandela::Ws
       ws.on(:message) do |event|
         log_it(:onmessage, event.data)
 
-        # TODO: use thread pool
-        Thread.new do
-          Mandela::Ws::HandleWsMsg.call(event.data, mconn)
-        end
+        handle_msg(event, mconn)
       end
 
       ws.on(:close) do |event|
@@ -44,8 +41,17 @@ module Mandela::Ws
       ws.rack_response
     end
 
-    def log_it(klass, action, *args)
-      puts ([:WsServer, action] + args).join(" ")
+    def log_it(action, *args)
+      Mandela::Utils.log(:WsServer, action, *args)
+    end
+
+    def handle_msg(event, mconn)
+      # Thread.new do
+      #   Mandela::Ws::HandleWsMsg.call(event.data, mconn)
+      # end
+      Mandela.executor_pool.post do
+        Mandela::Ws::HandleWsMsg.call(event.data, mconn)
+      end
     end
   end
 end

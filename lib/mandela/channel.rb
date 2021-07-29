@@ -2,6 +2,8 @@ module Mandela
   class Channel
     attr_reader :label, :id, :channel_defn
 
+    LOG = -> (action, *args) { Mandela::Utils.log(:Channel, action, *args) }
+
     def self.build(msg)
       channel_label = msg.dig('meta', 'label')
       channel_id = msg.dig('meta', 'id')
@@ -21,7 +23,7 @@ module Mandela
     def self.find_on_connection(msg, connection)
       connection
         .channels
-        .detect { |ch| ch.label == msg.dig(:meta, :label) && ch.id == msg.dig(:meta, :id) }
+        .detect { |ch| ch.label == msg.dig('meta', 'label') && ch.id == msg.dig('meta', 'id') }
     end
 
     def initialize(channel_label, channel_id, channel_defn)
@@ -30,12 +32,16 @@ module Mandela
       @channel_defn = channel_defn  # Mandela::ChannelDef
     end
 
+    def inspect
+      "<Mandela::Channel @label=#{@label} @id=#{@id}>"
+    end
+
     def execute(action, args)
       case action
       when :on_message
         msg = args[:msg]
         sub = args[:sub]
-        puts "[Channel:on_message] msg: #{msg}, sub: #{sub}"
+        LOG[:on_message, sub.inspect, msg]
         
         @channel_defn.public_send(:_on_message, msg, sub)  
       end

@@ -34,7 +34,8 @@ module Mandela
     end
 
     def inspect
-      "<Mandela::Subscription @channel=#{@channel} @connection=#{@connection} >"
+      "<Mandela::Subscription @channel=(#{channel.label}, #{channel.id}) @connection=#{@connection.id}>"
+      # "<Mandela::Subscription @channel=#{@channel.inspect} @connection=#{@connection.inspect} >"
     end
   end
 

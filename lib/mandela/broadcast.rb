@@ -6,9 +6,9 @@ module Mandela
       payload[:meta] = { label: channel_label, id: channel_id }
       payload[:data] = msg
 
-      puts "[Mandela.broadcast] payload: #{payload}"
+      Mandela.log(:Broadcast, nil, payload)
 
-      pubsub.publish(payload.to_json)
+      Mandela.pubsub.publish(payload.to_json)
     end
 
     def self.call1(channel, msg)

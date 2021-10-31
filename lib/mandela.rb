@@ -50,6 +50,23 @@ module Mandela
     Mandela::Pubsub::Redis
   end
 
+  def self.start_puma(port:, secure:)
+    require 'puma/binder'
+    require 'puma/events'
+
+    app = Mandela.ws_server
+    Faye::WebSocket.load_adapter('puma')
+
+    puts "Starting Puma with #{app}"
+
+    events = Puma::Events.new($stdout, $stderr)
+    binder = Puma::Binder.new(events)
+    binder.parse(["tcp://0.0.0.0:#{ port }"], app)
+    server = Puma::Server.new(app, events)
+    server.binder = binder
+    server.run.join
+  end
+
   def self.executor_pool
     @@executor_pool ||= Concurrent::ThreadPoolExecutor.new(
       min_threads: 5,

@@ -48,11 +48,10 @@ class CollabChannel
   def on_subscribe(subscription)
   end
 
-  def on_message(msg, subscription)
-    # puts "[CollabChannel#on_message]: #{msg}"
+  def on_message(msg, subscription) # TODO: make it (data, meta, subscription)
     Mandela.log(:CollabChannel, :on_message, msg)
     channel = subscription.channel
-    Mandela.broadcast(channel.label, channel.id, msg['data'])
+    Mandela.broadcast(channel.label, channel.id, msg['msg'])
   end
 
   def on_unsub(subscription)

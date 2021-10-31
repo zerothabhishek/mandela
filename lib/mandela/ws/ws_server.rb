@@ -1,5 +1,5 @@
 module Mandela::Ws
-  OPTIONS = { :extensions => [PermessageDeflate], :ping => 5 }
+  OPTIONS = { :extensions => [PermessageDeflate] }
 
   class WsServer
     def self.call(env)
@@ -22,12 +22,15 @@ module Mandela::Ws
         mconn = Mandela::Connection.new(ws)
         log_it(:open, mconn.id)
 
+        # TODO: What if the connection never tries a subsciption
+        # How long can we keep a connection open ?
         Mandela::Registry.register_connection(mconn)
       end
 
       ws.on(:message) do |event|
         log_it(:onmessage, event.data)
 
+        # ws.send("Got it!: #{Time.now}")
         handle_msg(event, mconn)
       end
 
@@ -51,8 +54,9 @@ module Mandela::Ws
       # end
       Mandela.executor_pool.post do
         Mandela::Ws::HandleWsMsg.call(event.data, mconn)
+      rescue => e
+        log_it(:handle_msg, e.message)
       end
     end
   end
 end
-

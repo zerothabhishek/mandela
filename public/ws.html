@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title> WS Client </title>
+  <script src="./mandela.js" type="module"></script>
 </head>
 
 <body>
@@ -12,20 +13,20 @@
 
 <script type="text/javascript">
 
-  var socket = new WebSocket("ws://localhost:9292")
+  // var socket = new WebSocket("ws://localhost:9292")
 
-  socket.onopen = function () {
-    socket.send("ping")
+  // socket.onopen = function () {
+  //   socket.send("ping")
     
-    var sub_req = { meta: { type: 'sub', label: 'collab', id: 125 } }
-    socket.send(JSON.stringify(sub_req))
-  }
+  //   var sub_req = { meta: { type: 'sub', label: 'collab', id: 125 } }
+  //   socket.send(JSON.stringify(sub_req))
+  // }
 
 
-  socket.onmessage = function (event) {
-    console.log("onmessage:", event)
-    document.getElementById("root").innerHTML = event.data
-  }
+  // socket.onmessage = function (event) {
+  //   console.log("onmessage:", event)
+  //   document.getElementById("root").innerHTML = event.data
+  // }
 
 </script>
 

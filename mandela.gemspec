@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "permessage_deflate", "0.1.4"
   spec.add_dependency "redis", ">= 4.3"
   spec.add_dependency "concurrent-ruby"
+  spec.add_dependency "async"
 
   spec.add_development_dependency "rake"
   spec.add_development_dependency "byebug"

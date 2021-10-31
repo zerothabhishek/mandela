@@ -34,6 +34,17 @@ module Mandela
 
           on.subscribe do |ch, sub|
             LOG[:sub, sub]
+            # Accept more subscriptions
+            # watch_queue(subsription_queue) do |sub_req|
+            #   sub_connection.subscribe(sub_req.channel_name) do |onx|
+            #     onx.subscribe do |chx, subx|
+            #     end
+            #     onx.message do |chx, data|
+            #     end
+            #     onx.unsubscribe do |chx, data|
+            #     end
+            #   end
+            # end
           end
 
           on.message do |ch, data|
@@ -52,6 +63,9 @@ module Mandela
         Mandela.executor_pool.post do
           Mandela::Pubsub::Inform.call(data)
         end
+        # Thread.new do
+        #   Mandela::Pubsub::Inform.call(data)
+        # end
       end
 
     end

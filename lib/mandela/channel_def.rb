@@ -9,6 +9,8 @@ module Mandela
 
     module ClassMethods
 
+      ARG_ERR = -> (label) { "#{label}: needs a method name or a block" }
+
       ## -- the macros -------------------------
 
       def the_label
@@ -16,47 +18,63 @@ module Mandela
       end
 
       # TODO: use meta programming to remove repetition
-      def find_id_with(method_name)
-        @find_id_with = method_name
+      def find_id_with(method_name = nil, &block)
+        raise ARG_ERR[:authenticate_with] if method_name.nil? && !block_given?
+
+        @find_id_with = method_name || block
       end
 
-      # def find_user_with(method_name)
-      #   @find_user_with = method_name
-      # end
+      def authenticate_with(method_name = nil, &block)
+        raise ARG_ERR[:authenticate_with] if method_name.nil? && !block_given?
 
-      def authenticate_with(method_name)
-        @authenticate_with = method_name
+        @authenticate_with = method_name || block
       end
 
-      def authorize_with(method_name)
-        @authorize_with = method_name
+      def authorize_with(method_name = nil, &block)
+        raise ARG_ERR[:authorize_with] if method_name.nil? && !block_given?
+
+        @authorize_with = method_name || block
       end
 
-      def on_subscribe(method_name)
-        @on_subscribe = method_name
+      def on_subscribe(method_name = nil, &block)
+        raise ARG_ERR[:on_subscribe] if method_name.nil? && !block_given?
+
+        @on_subscribe = method_name || block
       end
 
-      def on_message(method_name)
-        @on_message = method_name
+      def on_message(method_name = nil, &block)
+        raise ARG_ERR[:on_message] if method_name.nil? && !block_given?
+
+        @on_message = method_name || block
       end
 
-      def on_unsub(method_name)
-        @on_unsub = method_name
+      def on_unsub(method_name = nil, &block)
+        raise ARG_ERR[:on_unsub] if method_name.nil? && !block_given?
+
+        @on_unsub = method_name || block
       end
 
-      def on_broadcast_start(method_name)
-        @on_broadcast_start = method_name
+      def on_broadcast_start(method_name = nil, &block)
+        raise ARG_ERR[:on_broadcast_start] if method_name.nil? && !block_given?
+
+        @on_broadcast_start = method_name || block
       end
 
-      def on_broadcast_finish(method_name)
-        @on_broadcast_finish = method_name
+      def on_broadcast_finish(method_name = nil, &block)
+        raise ARG_ERR[:on_broadcast_finish] if method_name.nil? && !block_given?
+
+        @on_broadcast_finish = method_name || block
       end
 
-      def on_presence(method_name)
-        @on_presence = method_name
+      def on_presence(method_name = nil, &block)
+        raise ARG_ERR[:on_broadcast_finish] if method_name.nil? && !block_given?
+
+        @on_presence = method_name || block
       end
 
-      def recur(method_name, args)
+      def recur(method_name, args, &block)
+        raise ARG_ERR[:recur] if method_name.nil? && !block_given?
+
         @recur_list ||= []
         @recur_list.push({ handler: method_name }.merge(args))
       end

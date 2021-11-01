@@ -64,16 +64,20 @@ module Mandela
         # msg = args[:msg]
         # sub = args[:sub]
         # LOG[:on_message, sub.inspect, msg]
-        
+
         # @channel_defn._on_message(msg, sub)
-        handler = handler_for(:on_message)  
+        handler = handler_for(:on_message)
         send_to_handler(:on_message, args[:msg], args[:sub])
       end
     end
 
     def send_to_handler(handler, *args)
       return true if handler.nil?
-      @channel_defn_instance.public_send(handler, *args)
+      if handler.is_a?(Proc)
+        handler.call(*args)
+      else
+        @channel_defn_instance.public_send(handler, *args)
+      end
     end
 
     def handler_for(action)

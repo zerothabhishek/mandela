@@ -1,44 +1,90 @@
 # Mandela
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/mandela`. To experiment with that code, run `bin/console` for an interactive prompt.
+Mandela is a WebSocket pub-sub library for Ruby on  Rails. Similar to Actioncable with some interesting differences. The goal is to be simpler and support more features.
 
-TODO: Delete this and the text above, and describe your gem
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'mandela'
-```
-
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install mandela
+Note: The code is experimental at the moment, and might break.
 
 ## Usage
 
-TODO: Write usage instructions here
+- Define a channel
 
-## Development
+```
+class RandomChannel # => default label will be 'random'
+  include ::Mandela::ChannelDef
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+  on_message do |msg, sub|
+    Mandela.broadcast(sub.channel.label, sub.channel.id, msg['msg'])
+  end
+end
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+- Subscribe in Javascript
 
-## Contributing
+```
+  import Mandela from "mandela";
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/mandela. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/mandela/blob/master/CODE_OF_CONDUCT.md).
+  Mandela.setUrl("ws://localhost:9292")
+  const channel = { label: 'random', id: '125' }
+  Mandela.subscribe(channel, {
+    received(data) {
+      insertInDom(data)
+    }
+  })
+
+```
+
+- Broadcast from anywhere in your app:
+
+```
+  ## Mandela identifies channels with a label and an id
+  channel = [ channel.label, channel.id ]
+  Mandela.broadcast(channel, msg)
+```
+
+- Add more functionality: auth, authorization, callback hooks
+
+```
+  class RandomChannel
+    include ::Mandela::ChannelDef
+
+    on_message { |msg, sub| ... }
+
+    authenticate_with do |conn|
+      connection.cookies['sender'].in?(%w[ballu mallu kallu])
+    end
+
+    ## The callbacks
+
+    on_subscribe { |sub| ... }
+    on_unsub { |sub| ... }
+    on_broadcast_start { |sub| ... }
+    on_broadcast_finish { |sub| ... }
+
+    ## Recurring actions
+
+    recur(every: 10) do |sub|
+      # Do this every 10 seconds
+      Mandela.broadcast(sub.channel, { hola: :again })
+    end
+
+    ## handlers can be defined as methods too
+    authorize_with :authorize
+
+    def authorize
+      :ok
+    end
+  end
+```
 
 
-## License
+## Differences from ActionCable
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+- Mandela identifies a channel with a label and an id. Label identifies the definition for the channel (like RandomChannel above), and the id points to the instance. For example, for the #general channel in my company's Slack, the label could be '#general', but the specific instance for my team might be identified by another, database backed ID. So in Mandela, you create a GeneralChannel to defined behavior for the channel, and have its various instances stored in the DB.
 
-## Code of Conduct
+- There is no `stream_from`. When we subscribe to a channel, we provide the label and id to identify the exact channel instance, and that's where we stream from.
 
-Everyone interacting in the Mandela project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/mandela/blob/master/CODE_OF_CONDUCT.md).
+- The authentication API is a bit more simplified. In ActionCable you setup identifiers at connection level, and that's where auth happens too. Here auth happens at subscription level, and can be different for each channel.
+
+- Identification happens differently. TODO: add more details
+
+- `here_now` is supported. TODO: add more details
